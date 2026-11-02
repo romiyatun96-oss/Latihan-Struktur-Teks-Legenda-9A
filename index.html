@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LokaLegenda — Game Edukasi Cerita Rakyat & Analisis Struktur Teks</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Lora -->
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fdfbf7;
+            background-image:
+                radial-gradient(at 10% 10%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+                radial-gradient(at 90% 20%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 90%, rgba(225, 29, 72, 0.06) 0px, transparent 50%);
+        }
+
+        .story-text {
+            font-family: 'Lora', serif;
+        }
+
+        /* 4 Bentuk Unik Cerita Legenda */
+        .shape-hexagon {
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+
+        .shape-diamond {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+
+        .shape-circle {
+            border-radius: 9999px;
+        }
+
+        .shape-triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .shape-card {
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .shape-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .shape-card.active-shape {
+            ring: 3px;
+            background-color: #fffbeb;
+            border-color: #d97706 !important;
+            box-shadow: 0 8px 20px -4px rgba(217, 119, 6, 0.25);
+        }
+
+        /* Custom Scrollbar Halus untuk Panel Satu Layar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Styling Tabel Spreadsheet */
+        .sheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+        }
+
+        .sheet-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 800;
+            text-align: left;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            user-select: none;
+        }
+
+        .sheet-table td {
+            padding: 6px 10px;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+            background-color: #ffffff;
+        }
+
+        .sheet-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .sheet-table td:focus {
+            outline: 2px solid #10b981;
+            background-color: #ecfdf5;
+        }
+
+        .sheet-row-header {
+            background-color: #f1f5f9 !important;
+            color: #64748b;
+            font-weight: 700;
+            text-align: center !important;
+            width: 36px;
+            user-select: none;
+        }
+    </style>
+</head>
+<body class="lg:h-screen lg:overflow-hidden flex flex-col text-slate-800 select-none sm:select-auto">
+
+    <!-- ==================== BARIS ATAS: BRAND + INPUT KELOMPOK & ANGGOTA (SATU BARIS) ==================== -->
+    <header class="shrink-0 bg-white/95 backdrop-blur border-b border-amber-200/80 shadow-sm px-3 sm:px-5 py-2">
+        <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-2.5 shrink-0">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-600 to-orange-600 text-white flex items-center justify-center shadow">
+                    <i class="fa-solid fa-landmark-dome text-base"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <h1 class="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 leading-none">LokaLegenda</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800 rounded-full border border-amber-300">
+                            Satu Layar
+                        </span>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Analisis Struktur Legenda & Fakta Ilmiah</p>
+                </div>
+            </div>
+
+            <!-- Kolom Input Kelompok & Nama Anggota Langsung di Atas -->
+            <div class="flex flex-wrap items-center gap-2 flex-grow max-w-3xl justify-end">
+                <div class="flex items-center bg-amber-50/70 border border-amber-300 rounded-xl px-2.5 py-1 flex-grow sm:flex-grow-0 sm:w-52">
+                    <i class="fa-solid fa-flag text-amber-600 text-xs mr-2"></i>
+                    <input id="groupNameInput" oninput="syncGroupIdentity()" type="text" placeholder="Ketik Nama Kelompok..."
+                        class="w-full bg-transparent outline-none text-xs font-bold text-slate-800 placeholder:font-normal placeholder:text-slate-400">
+                </div>
+
+                <div class="flex items-center bg-amber-50/70 border border-amber-300 rounded-xl px-2.5 py-1 flex-grow sm:w-64">
+                    <i class="fa-solid fa-users text-amber-600 text-xs mr-2"></i>
+                    <input id="groupMembersInput" oninput="syncGroupIdentity()" type="text" placeholder="Nama Anggota (pisahkan koma)..."
+                        class="w-full bg-transparent outline-none text-xs font-medium text-slate-800 placeholder:text-slate-400">
+                </div>
+
+                <button onclick="saveGroupIdentityBtn()" type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs transition flex items-center gap-1 shadow-sm shrink-0">
+                    <i class="fa-solid fa-check"></i> <span class="hidden sm:inline">Set Kelompok</span>
+                </button>
+
+                <button onclick="resetGroupForNewTeam()" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition shrink-0" title="Ganti Kelompok Baru">
+                    <i class="fa-solid fa-user-plus"></i>
+                </button>
+
+                <div id="groupStatusAlert" class="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold shrink-0">
+                    <i class="fa-solid fa-circle-info text-amber-600"></i>
+                    <span id="navGroupName">Isi Kelompok</span>
+                </div>
+
+                <button onclick="openSpreadsheetModal()" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs transition flex items-center gap-1.5 shadow-sm shrink-0" title="Buka Spreadsheet Jawaban & Skor">
+                    <i class="fa-solid fa-table"></i>
+                    <span class="hidden sm:inline">Spreadsheet</span>
+                    <span id="sheetCountBadge" class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-900">1</span>
+                </button>
+
+                <button onclick="toggleSound()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition shrink-0" title="Suara Efek">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== BERANDA SATU LAYAR (FOKUS 4 BENTUK LEGENDA) ==================== -->
+    <main class="flex-grow max-w-[1600px] w-full mx-auto px-3 sm:px-5 py-4 flex flex-col justify-center lg:overflow-hidden">
+
+        <!-- BERANDA UTAMA: 4 BENTUK MEWAKILI CERITA LEGENDA DENGAN LABEL -->
+        <section id="upperWorkspace" class="bg-white rounded-3xl p-5 sm:p-8 shadow-sm border border-amber-200/80 flex flex-col justify-between flex-grow max-h-[82vh]">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-100 shrink-0">
+                <div>
+                    <h2 class="text-base sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-amber-600"></i> Pilih 4 Bentuk Cerita Rakyat Nusantara
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500">Klik salah satu bentuk di bawah ini untuk membuka jendela cerita lengkap dan mengerjakan tugas analisis</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="completedCountText" class="px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">
+                        0/4 Cerita Selesai
+                    </span>
+                </div>
+            </div>
+
+            <!-- Grid 4 Bentuk Unik Berlabel (Satu Layar Penuh) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 flex-grow items-stretch">
+
+                <!-- BENTUK 1: SEGI ENAM - ASAL-USUL SALATIGA -->
+                <div id="card-salatiga" onclick="openStoryMission('salatiga')" class="shape-card group cursor-pointer bg-gradient-to-b from-amber-50/70 to-white rounded-3xl p-5 border-2 border-amber-200 hover:border-amber-500 flex flex-col items-center justify-center text-center relative shadow-sm">
+                    <div id="badge-salatiga" class="hidden absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-check"></i> Selesai
+                    </div>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full mb-4 border border-amber-200">
+                        Bentuk 1 • Segi Enam
+                    </span>
+                    <div class="w-28 h-24 sm:w-36 sm:h-32 shape-hexagon bg-gradient-to-br from-amber-500 via-amber-600 to-orange-700 flex flex-col items-center justify-center text-white shadow-lg p-3 mb-4 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-scroll text-2xl sm:text-4xl mb-1.5"></i>
+                        <span class="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider leading-none">Salatiga</span>
+                    </div>
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900">1. Asal-Usul Salatiga</h4>
+                    <p class="text-[11px] text-slate-500 mt-1 hidden sm:block">Jawa Tengah</p>
+                    <span class="mt-3 px-3.5 py-1.5 rounded-xl bg-amber-100/80 group-hover:bg-amber-600 group-hover:text-white text-xs font-extrabold text-amber-800 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Buka Cerita
+                    </span>
+                </div>
+
+                <!-- BENTUK 2: BELAH KETUPAT - RORO JONGGRANG -->
+                <div id="card-rorojonggrang" onclick="openStoryMission('rorojonggrang')" class="shape-card group cursor-pointer bg-gradient-to-b from-rose-50/70 to-white rounded-3xl p-5 border-2 border-rose-200 hover:border-rose-500 flex flex-col items-center justify-center text-center relative shadow-sm">
+                    <div id="badge-rorojonggrang" class="hidden absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-check"></i> Selesai
+                    </div>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-rose-800 bg-rose-100 px-3 py-1 rounded-full mb-4 border border-rose-200">
+                        Bentuk 2 • Belah Ketupat
+                    </span>
+                    <div class="w-28 h-28 sm:w-36 sm:h-36 shape-diamond bg-gradient-to-br from-rose-500 via-pink-600 to-purple-800 flex flex-col items-center justify-center text-white shadow-lg p-3 mb-4 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-gopuram text-2xl sm:text-4xl mb-1.5"></i>
+                        <span class="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider leading-none">Prambanan</span>
+                    </div>
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900">2. Roro Jonggrang</h4>
+                    <p class="text-[11px] text-slate-500 mt-1 hidden sm:block">Sleman & Klaten</p>
+                    <span class="mt-3 px-3.5 py-1.5 rounded-xl bg-rose-100/80 group-hover:bg-rose-600 group-hover:text-white text-xs font-extrabold text-rose-800 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Buka Cerita
+                    </span>
+                </div>
+
+                <!-- BENTUK 3: LINGKARAN - RATU SELATAN / RORO KIDUL -->
+                <div id="card-ratuselatan" onclick="openStoryMission('ratuselatan')" class="shape-card group cursor-pointer bg-gradient-to-b from-teal-50/70 to-white rounded-3xl p-5 border-2 border-teal-200 hover:border-teal-500 flex flex-col items-center justify-center text-center relative shadow-sm">
+                    <div id="badge-ratuselatan" class="hidden absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-check"></i> Selesai
+                    </div>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800 bg-teal-100 px-3 py-1 rounded-full mb-4 border border-teal-200">
+                        Bentuk 3 • Lingkaran
+                    </span>
+                    <div class="w-28 h-28 sm:w-36 sm:h-36 shape-circle bg-gradient-to-br from-teal-500 via-emerald-600 to-cyan-800 flex flex-col items-center justify-center text-white shadow-lg p-3 mb-4 border-4 border-teal-200 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-water text-2xl sm:text-4xl mb-1.5"></i>
+                        <span class="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider leading-none">Samudra</span>
+                    </div>
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900">3. Ratu Selatan / Roro Kidul</h4>
+                    <p class="text-[11px] text-slate-500 mt-1 hidden sm:block">Pantai Selatan Jawa</p>
+                    <span class="mt-3 px-3.5 py-1.5 rounded-xl bg-teal-100/80 group-hover:bg-teal-600 group-hover:text-white text-xs font-extrabold text-teal-800 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Buka Cerita
+                    </span>
+                </div>
+
+                <!-- BENTUK 4: SEGITIGA - ASAL-USUL MERAPI -->
+                <div id="card-merapi" onclick="openStoryMission('merapi')" class="shape-card group cursor-pointer bg-gradient-to-b from-orange-50/70 to-white rounded-3xl p-5 border-2 border-orange-200 hover:border-orange-500 flex flex-col items-center justify-center text-center relative shadow-sm">
+                    <div id="badge-merapi" class="hidden absolute top-3 right-3 px-2.5 py-0.5 rounded-full bg-emerald-500 text-white text-[10px] font-extrabold flex items-center gap-1 shadow">
+                        <i class="fa-solid fa-check"></i> Selesai
+                    </div>
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-orange-800 bg-orange-100 px-3 py-1 rounded-full mb-4 border border-orange-200">
+                        Bentuk 4 • Segitiga
+                    </span>
+                    <div class="w-28 h-24 sm:w-36 sm:h-32 shape-triangle bg-gradient-to-t from-red-800 via-orange-600 to-amber-400 flex flex-col items-center justify-end text-white shadow-lg pb-3 px-2 mb-4 group-hover:scale-105 transition">
+                        <i class="fa-solid fa-mountain-sun text-xl sm:text-2xl mb-1"></i>
+                        <span class="font-extrabold text-[10px] sm:text-xs uppercase tracking-wider leading-none">Merapi</span>
+                    </div>
+                    <h4 class="text-sm sm:text-base font-extrabold text-slate-900">4. Asal-Usul Merapi</h4>
+                    <p class="text-[11px] text-slate-500 mt-1 hidden sm:block">DIY & Jawa Tengah</p>
+                    <span class="mt-3 px-3.5 py-1.5 rounded-xl bg-orange-100/80 group-hover:bg-orange-600 group-hover:text-white text-xs font-extrabold text-orange-800 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Buka Cerita
+                    </span>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== JENDELA MODAL SPREADSHEET (DISEMBUNYIKAN DARI BERANDA, MUNCUL SAAT DIKLIK) ==================== -->
+    <div id="spreadsheetModal" class="fixed inset-0 z-40 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
+        <section id="spreadsheetSection" class="bg-white rounded-3xl max-w-6xl w-full h-[92vh] shadow-2xl border-2 border-emerald-600/40 flex flex-col overflow-hidden">
+            <!-- Toolbar Spreadsheet -->
+            <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white px-4 py-3 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-table text-emerald-200"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-extrabold">Spreadsheet Jawaban & Skor Murid</h3>
+                        <p class="text-[11px] text-emerald-100">Klik langsung pada sel tabel untuk mengedit jawaban atau nilai</p>
+                    </div>
+
+                    <!-- Statistik Ringkas Inline -->
+                    <div class="hidden md:flex items-center gap-3 ml-3 pl-3 border-l border-emerald-600 text-xs">
+                        <span>Total: <strong id="statTotalRows" class="text-white">1 Baris</strong></span>
+                        <span>Rata-rata: <strong id="statAvgScore" class="text-amber-300">100</strong></span>
+                        <span>Tertinggi: <strong id="statMaxScore" class="text-emerald-300">100</strong></span>
+                    </div>
+                </div>
+
+                <!-- Filter & Tombol Ekspor Spreadsheet -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <select id="sheetFilterStory" onchange="renderSpreadsheet()" class="bg-emerald-900/90 text-white text-xs font-bold rounded-xl px-2.5 py-1.5 border border-emerald-500/40 outline-none">
+                        <option value="ALL">Semua Legenda (4)</option>
+                        <option value="Asal-Usul Salatiga">1. Salatiga</option>
+                        <option value="Roro Jonggrang">2. Roro Jonggrang</option>
+                        <option value="Ratu Selatan / Roro Kidul">3. Ratu Selatan</option>
+                        <option value="Asal-Usul Merapi">4. Merapi</option>
+                    </select>
+
+                    <button onclick="openManualEntryModal()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Baris</span>
+                    </button>
+                    <button onclick="copySpreadsheetToClipboard()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition flex items-center gap-1">
+                        <i class="fa-solid fa-copy"></i> <span class="hidden sm:inline">Salin</span>
+                    </button>
+                    <button onclick="exportSpreadsheetCSV()" class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 text-xs font-extrabold transition flex items-center gap-1">
+                        <i class="fa-solid fa-download"></i> CSV/Excel
+                    </button>
+                    <button onclick="closeSpreadsheetModal()" class="ml-1 px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold transition flex items-center gap-1" title="Tutup Spreadsheet">
+                        <i class="fa-solid fa-xmark"></i> Tutup
+                    </button>
+                </div>
+            </div>
+
+            <!-- Formula Bar Compact -->
+            <div class="bg-slate-100 border-b border-slate-300 px-4 py-1.5 flex items-center gap-2 text-xs shrink-0">
+                <span id="activeCellCoord" class="font-mono font-bold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-300">A1</span>
+                <span class="font-serif italic font-bold text-slate-400">fx</span>
+                <div id="formulaBarText" class="flex-grow bg-white px-2.5 py-0.5 rounded border border-slate-300 text-slate-700 truncate">
+                    Klik sel untuk melihat detail atau edit langsung di tabel.
+                </div>
+                <button onclick="clearAllSpreadsheetData()" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-0.5 rounded hover:bg-rose-50 transition shrink-0 text-xs">
+                    <i class="fa-solid fa-trash-can"></i> Reset Tabel
+                </button>
+            </div>
+
+            <!-- Area Tabel Scrollable -->
+            <div class="overflow-auto flex-grow">
+                <table class="sheet-table">
+                    <thead>
+                        <tr>
+                            <th class="sheet-row-header">#</th>
+                            <th class="min-w-[120px]">A • Kelompok</th>
+                            <th class="min-w-[140px]">B • Anggota</th>
+                            <th class="min-w-[130px]">C • Legenda</th>
+                            <th class="min-w-[180px]">D • Orientasi</th>
+                            <th class="min-w-[180px]">E • Komplikasi</th>
+                            <th class="min-w-[180px]">F • Resolusi</th>
+                            <th class="min-w-[180px]">G • Koda</th>
+                            <th class="min-w-[210px]">H • Fakta Ilmiah</th>
+                            <th class="min-w-[80px] text-center">I • Skor</th>
+                            <th class="min-w-[75px] text-center">J • Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spreadsheetBody">
+                        <!-- Diisi otomatis oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== JENDELA SATU LAYAR CERITA LEGENDA (MUNCUL SAAT BENTUK DIKLIK) ==================== -->
+    <div id="storyFullscreenModal" class="fixed inset-0 z-40 hidden bg-amber-950/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
+        <div class="bg-[#fdfbf7] rounded-3xl max-w-5xl w-full h-[94vh] shadow-2xl border-2 border-amber-300 flex flex-col overflow-hidden relative">
+            <!-- Header Jendela Cerita -->
+            <div id="storyHeaderBanner" class="bg-gradient-to-r from-amber-700 via-amber-600 to-orange-800 text-white px-5 py-3.5 shrink-0 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="closeStoryModal()" type="button" class="px-3 py-1.5 rounded-xl bg-black/25 hover:bg-black/40 text-white font-bold text-xs flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Beranda
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-2 text-[11px] text-amber-100 font-bold uppercase tracking-wider">
+                            <span id="missionShapeLabel">Bentuk 1 • Segi Enam</span>
+                            <span>•</span>
+                            <span id="storyRegionTag">Jawa Tengah</span>
+                        </div>
+                        <h3 id="readerTitle" class="text-base sm:text-xl font-extrabold leading-tight">1. Asal-Usul Salatiga</h3>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-amber-100 hidden sm:inline mr-1">Ukuran Huruf:</span>
+                    <button onclick="adjustFontSize(-1)" class="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs transition" title="Perkecil Huruf">A-</button>
+                    <button onclick="adjustFontSize(1)" class="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white font-extrabold text-xs transition" title="Perbesar Huruf">A+</button>
+                </div>
+            </div>
+
+            <!-- Isi Teks Cerita Lengkap (Satu Layar Penuh) -->
+            <div id="storyFullTextContainer" class="p-5 sm:p-8 pb-24 space-y-4 overflow-y-auto flex-grow story-text text-slate-800 text-sm sm:text-base leading-relaxed">
+                <!-- Paragraf cerita di-render di sini oleh JS -->
+            </div>
+
+            <!-- TOMBOL POJOK KANAN BAWAH: KERJAKAN TUGAS -->
+            <div class="absolute bottom-5 right-5 z-20 flex items-center gap-2">
+                <button onclick="openTaskModal()" type="button" class="group px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-extrabold text-sm sm:text-base shadow-2xl border-2 border-amber-200 transition transform hover:scale-105 flex items-center gap-2.5">
+                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                    <span>Kerjakan Tugas</span>
+                    <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JENDELA SATU LAYAR PENGERJAAN TUGAS (MUNCUL SAAT TOMBOL POJOK KANAN BAWAH DIKLIK) ==================== -->
+    <div id="taskFullscreenModal" class="fixed inset-0 z-40 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5">
+        <div class="bg-white rounded-3xl max-w-5xl w-full h-[94vh] shadow-2xl border-2 border-slate-200 flex flex-col overflow-hidden">
+            <!-- Header Lembar Tugas -->
+            <div class="px-5 py-3.5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center gap-3">
+                    <button onclick="backToStoryWindow()" type="button" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-book-open"></i> Lihat Teks Cerita
+                    </button>
+                    <div>
+                        <h3 class="text-sm sm:text-base font-extrabold flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check text-amber-400"></i>
+                            <span>Lembar Tugas Murid — <span id="taskModalStoryTitle" class="text-amber-300">Asal-Usul Salatiga</span></span>
+                        </h3>
+                        <p class="text-[11px] text-slate-300">Analisis Struktur Teks Legenda (Pertanyaan 1) & Fakta Ilmiah (Pertanyaan 2)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button onclick="toggleStructureGuide()" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-400/40">
+                        <i class="fa-solid fa-circle-question"></i> Panduan Struktur
+                    </button>
+                    <button onclick="toggleScienceHint()" type="button" class="px-2.5 py-1 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-bold border border-teal-400/40">
+                        <i class="fa-solid fa-flask"></i> Petunjuk Sains
+                    </button>
+                    <button id="btnSampleAnswer" onclick="fillSampleAnswerForCurrentStory()" type="button" class="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5" title="Terkunci: Tuliskan usaha jawabanmu terlebih dahulu di semua kolom">
+                        <i id="sampleBtnIcon" class="fa-solid fa-lock text-rose-400"></i>
+                        <span id="sampleBtnText">Contoh (Terkunci)</span>
+                    </button>
+                    <button onclick="closeAllStoryAndTaskModals()" type="button" class="ml-1 w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center transition" title="Tutup ke Beranda">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Isi Form Tugas Satu Layar -->
+            <div class="p-4 sm:p-6 space-y-4 overflow-y-auto flex-grow bg-slate-50/60">
+                <!-- Kotak Panduan Struktur (Collapsible) -->
+                <div id="structureGuideBox" class="hidden rounded-2xl bg-amber-50 border border-amber-200 p-3.5 text-xs space-y-1 text-slate-700">
+                    <div class="font-extrabold text-amber-900">Panduan 4 Struktur Teks Legenda:</div>
+                    <div>• <strong>Orientasi:</strong> Pengenalan tokoh, latar tempat, dan waktu di awal cerita.</div>
+                    <div>• <strong>Komplikasi:</strong> Munculnya konflik atau permasalahan utama hingga mencapai puncak.</div>
+                    <div>• <strong>Resolusi:</strong> Penyelesaian dari masalah atau konflik yang dihadapi tokoh.</div>
+                    <div>• <strong>Koda:</strong> Penutup cerita yang berisi asal-usul penamaan tempat dan pesan moral/amanat.</div>
+                </div>
+
+                <!-- Kotak Petunjuk Sains (Collapsible) -->
+                <div id="scienceHintBox" class="hidden rounded-2xl bg-teal-50 border border-teal-200 p-3.5 text-xs text-teal-950 space-y-2">
+                    <div class="font-extrabold text-teal-800"><i class="fa-solid fa-microscope mr-1"></i> Petunjuk Fakta Ilmiah:</div>
+                    <p id="scienceHintContent" class="leading-relaxed text-slate-700"></p>
+                    <div id="scienceKeywordPills" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <!-- Kotak Referensi Contoh Jawaban (Hanya bisa dibuka setelah murid berusaha menulis jawaban) -->
+                <div id="sampleAnswerBox" class="hidden rounded-2xl bg-emerald-50 border-2 border-emerald-300 p-4 text-xs text-slate-800 space-y-2.5 shadow-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-200 pb-2">
+                        <div class="font-extrabold text-emerald-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-unlock-keyhole text-emerald-600"></i>
+                            <span>Referensi Contoh Jawaban (Pembanding Hasil Diskusimu)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="applySampleToInputs()" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Salin ke Kolom
+                            </button>
+                            <button onclick="document.getElementById('sampleAnswerBox').classList.add('hidden')" type="button" class="px-2 py-1 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 font-bold text-[11px]">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                    <div id="sampleAnswerContent" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11.5px] leading-relaxed"></div>
+                </div>
+
+                <!-- PERTANYAAN 1: 4 STRUKTUR TEKS -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                        <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-700">
+                            <i class="fa-solid fa-list-ol mr-1"></i> Pertanyaan 1 • Tentukan Struktur Teks Legenda (Skor Maks: 60 Poin)
+                        </span>
+                        <span id="effortProgressBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                            <i class="fa-solid fa-pen-clip mr-1"></i> Usaha Menulis: 0/5 Kolom
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- 1. Orientasi -->
+                        <div class="p-3 rounded-xl bg-blue-50/40 border border-blue-200 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="font-extrabold text-xs text-blue-900">1. Orientasi (Pengenalan)</label>
+                                <select id="selectOrientasi" onchange="checkStudentEffort()" class="px-2 py-1 rounded-lg border border-blue-300 bg-white text-xs font-bold text-slate-700">
+                                    <option value="">Pilih Paragraf...</option>
+                                    <option value="1">Paragraf 1</option>
+                                    <option value="2">Paragraf 2</option>
+                                    <option value="3">Paragraf 3</option>
+                                    <option value="4">Paragraf 4</option>
+                                </select>
+                            </div>
+                            <textarea id="inputOrientasi" oninput="checkStudentEffort()" rows="2" placeholder="Tuliskan analisis bagian Orientasi (siapa tokohnya & di mana latarnya)..."
+                                class="w-full p-2.5 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-xs bg-white"></textarea>
+                        </div>
+
+                        <!-- 2. Komplikasi -->
+                        <div class="p-3 rounded-xl bg-rose-50/40 border border-rose-200 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="font-extrabold text-xs text-rose-900">2. Komplikasi (Munculnya Konflik)</label>
+                                <select id="selectKomplikasi" onchange="checkStudentEffort()" class="px-2 py-1 rounded-lg border border-rose-300 bg-white text-xs font-bold text-slate-700">
+                                    <option value="">Pilih Paragraf...</option>
+                                    <option value="1">Paragraf 1</option>
+                                    <option value="2">Paragraf 2</option>
+                                    <option value="3">Paragraf 3</option>
+                                    <option value="4">Paragraf 4</option>
+                                </select>
+                            </div>
+                            <textarea id="inputKomplikasi" oninput="checkStudentEffort()" rows="2" placeholder="Tuliskan analisis bagian Komplikasi (masalah & puncak konflik yang terjadi)..."
+                                class="w-full p-2.5 rounded-xl border border-slate-300 focus:border-rose-500 outline-none text-xs bg-white"></textarea>
+                        </div>
+
+                        <!-- 3. Resolusi -->
+                        <div class="p-3 rounded-xl bg-emerald-50/40 border border-emerald-200 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="font-extrabold text-xs text-emerald-900">3. Resolusi (Penyelesaian Masalah)</label>
+                                <select id="selectResolusi" onchange="checkStudentEffort()" class="px-2 py-1 rounded-lg border border-emerald-300 bg-white text-xs font-bold text-slate-700">
+                                    <option value="">Pilih Paragraf...</option>
+                                    <option value="1">Paragraf 1</option>
+                                    <option value="2">Paragraf 2</option>
+                                    <option value="3">Paragraf 3</option>
+                                    <option value="4">Paragraf 4</option>
+                                </select>
+                            </div>
+                            <textarea id="inputResolusi" oninput="checkStudentEffort()" rows="2" placeholder="Tuliskan analisis bagian Resolusi (bagaimana masalah tersebut diselesaikan)..."
+                                class="w-full p-2.5 rounded-xl border border-slate-300 focus:border-emerald-500 outline-none text-xs bg-white"></textarea>
+                        </div>
+
+                        <!-- 4. Koda -->
+                        <div class="p-3 rounded-xl bg-purple-50/40 border border-purple-200 space-y-1.5">
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="font-extrabold text-xs text-purple-900">4. Koda (Penutup & Pesan Moral)</label>
+                                <select id="selectKoda" onchange="checkStudentEffort()" class="px-2 py-1 rounded-lg border border-purple-300 bg-white text-xs font-bold text-slate-700">
+                                    <option value="">Pilih Paragraf...</option>
+                                    <option value="1">Paragraf 1</option>
+                                    <option value="2">Paragraf 2</option>
+                                    <option value="3">Paragraf 3</option>
+                                    <option value="4">Paragraf 4</option>
+                                </select>
+                            </div>
+                            <textarea id="inputKoda" oninput="checkStudentEffort()" rows="2" placeholder="Tuliskan analisis bagian Koda (asal-usul tempat & amanat cerita)..."
+                                class="w-full p-2.5 rounded-xl border border-slate-300 focus:border-purple-500 outline-none text-xs bg-white"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PERTANYAAN 2: FAKTA ILMIAH -->
+                <div class="p-4 rounded-2xl bg-teal-50/70 border-2 border-teal-200 space-y-2 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-teal-900">
+                            <i class="fa-solid fa-Atom mr-1"></i> Pertanyaan 2 • Fakta Ilmiah yang Berkaitan dengan Legenda (Skor Maks: 40 Poin)
+                        </span>
+                    </div>
+                    <p id="sciencePromptText" class="text-xs text-slate-700 font-medium leading-relaxed">
+                        Tuliskan fakta ilmiah (sejarah, arkeologi, geologi, atau oseanografi) yang berkaitan dengan legenda ini!
+                    </p>
+                    <textarea id="inputFaktaIlmiah" oninput="checkStudentEffort()" rows="3" placeholder="Tuliskan penjelasan fakta ilmiah yang berkaitan dengan legenda tersebut menurut diskusi kelompokmu..."
+                        class="w-full p-3 rounded-xl border border-teal-300 focus:border-teal-600 outline-none text-xs bg-white"></textarea>
+                </div>
+            </div>
+
+            <!-- Footer Tombol Kirim Tugas -->
+            <div class="px-5 py-3.5 bg-white border-t border-slate-200 shrink-0 flex flex-wrap items-center justify-between gap-3">
+                <button onclick="backToStoryWindow()" type="button" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali ke Teks Cerita
+                </button>
+                <button onclick="submitMissionAnalysis()" type="button" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs sm:text-sm shadow-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Kirim Jawaban & Simpan ke Spreadsheet</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL HASIL SKOR & EVALUASI ==================== -->
+    <div id="resultModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden animate-pulse-soft" style="animation-iteration-count: 1;">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 text-center relative">
+                <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur mx-auto flex items-center justify-center text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-trophy text-amber-300"></i>
+                </div>
+                <h3 class="text-xl font-extrabold">Analisis Berhasil Tersimpan di Spreadsheet!</h3>
+                <p id="modalGroupSubtitle" class="text-xs text-emerald-100 mt-1">Kelompok -</p>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <!-- Rincian Skor -->
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200">
+                        <span class="text-[11px] font-bold text-amber-800 uppercase block">Skor Struktur (Q1)</span>
+                        <span id="modalScoreStructure" class="text-2xl font-extrabold text-amber-600">0/60</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-teal-50 border border-teal-200">
+                        <span class="text-[11px] font-bold text-teal-800 uppercase block">Skor Sains (Q2)</span>
+                        <span id="modalScoreScience" class="text-2xl font-extrabold text-teal-600">0/40</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-emerald-50 border-2 border-emerald-500">
+                        <span class="text-[11px] font-extrabold text-emerald-900 uppercase block">Total Skor</span>
+                        <span id="modalScoreTotal" class="text-2xl font-extrabold text-emerald-700">0</span>
+                    </div>
+                </div>
+
+                <!-- Umpan Balik Otomatis -->
+                <div id="modalFeedbackBox" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-1.5 leading-relaxed">
+                    <!-- Diisi lewat JS -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+                    <button onclick="closeResultModalAndViewSheet()" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-table"></i> Buka Spreadsheet Jawaban & Skor
+                    </button>
+                    <button onclick="closeResultModal()" class="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DETAIL / INPUT MANUAL SPREADSHEET ==================== -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-slate-800 text-white px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-table-list text-emerald-400"></i>
+                    <h3 id="detailModalTitle" class="font-extrabold text-base">Detail Baris Spreadsheet</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="detailModalBody" class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm">
+                <!-- Diisi dinamis -->
+            </div>
+            <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closeDetailModal()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Toast Notifikasi -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- ==================== JAVASCRIPT GAME & SPREADSHEET LOGIC ==================== -->
+    <script>
+        // --- 1. DATABASE 4 CERITA LEGENDA LENGKAP, KUNCI STRUKTUR, & FAKTA ILMIAH ---
+        const STORIES_DB = {
+            salatiga: {
+                id: 'salatiga',
+                number: 1,
+                title: 'Asal-Usul Salatiga',
+                shapeName: 'Bentuk 1 • Segi Enam (Hexagon)',
+                region: 'Kota Salatiga, Jawa Tengah',
+                bannerClass: 'from-amber-700 via-amber-600 to-orange-800',
+                paragraphs: [
+                    {
+                        num: 1,
+                        structureTag: 'Orientasi',
+                        text: `Pada zaman dahulu di wilayah Kesultanan Demak, hiduplah seorang bupati Semarang yang sangat kaya raya bernama Ki Ageng Pandanaran. Pada awalnya, beliau dikenal sebagai pemimpin yang bijaksana, namun lama-kelamaan hatinya mulai silau oleh kemewahan duniawi dan gemar mengumpulkan harta benda. Kabar perubahan sikap Ki Ageng Pandanaran ini terdengar oleh salah seorang Wali Songo yang sangat bijaksana, yakni Sunan Kalijaga. Untuk menyadarkan sang bupati, Sunan Kalijaga pun menyamar sebagai seorang penjual rumput biasa dan datang ke kadipaten Semarang.`
+                    },
+                    {
+                        num: 2,
+                        structureTag: 'Komplikasi',
+                        text: `Setiap kali membeli rumput, Ki Ageng Pandanaran selalu menawar dengan harga yang sangat murah dan bersikap angkuh. Suatu hari, Sunan Kalijaga menancapkan cangkulnya ke tanah dan seketika bongkahan tanah itu berubah menjadi emas murni. Ki Ageng Pandanaran sangat terkejut dan menyadari bahwa penjual rumput itu adalah Sunan Kalijaga. Beliau pun memohon ampun dan bertekad meninggalkan seluruh jabatannya untuk berguru ke Gunung Jabalakat dengan syarat tidak boleh membawa harta kekayaan. Namun, sang istri, Nyi Ageng Pandanaran, masih berat meninggalkan emas berliannya dan diam-diam menyembunyikan perhiasan di dalam tongkat bambunya. Di tengah perjalanan melewati hutan yang sepi, mereka dihadang oleh tiga orang perampok kejam yang merampas tongkat berisi emas milik Nyi Ageng.`
+                    },
+                    {
+                        num: 3,
+                        structureTag: 'Resolusi',
+                        text: `Meskipun tongkat berisi emas itu telah dirampas, Ki Ageng Pandanaran tetap tenang dan tidak melawan dengan kekerasan. Beliau justru menasihati para perampok tersebut dengan penuh kasih sayang dan menjelaskan bahwa perbuatan mengambil hak orang lain serta ketamakan hanya akan membawa kesengsaraan. Sunan Kalijaga yang menyusul perjalanan mereka turut memberikan wejangan hingga salah seorang perampok bernama Sambangdalan tersentuh hatinya, menangis memohon ampun, lalu bertobat dan menjadi pengikut setia Ki Ageng Pandanaran.`
+                    },
+                    {
+                        num: 4,
+                        structureTag: 'Koda',
+                        text: `Di tempat kejadian itu, Sunan Kalijaga berkata bahwa telah terjadi tiga kesalahan sekaligus: kesalahan Ki Ageng yang semula tamak saat menjabat, kesalahan Nyi Ageng yang melanggar janji dengan menyembunyikan emas, dan kesalahan para perampok yang merampas harta. Tempat terjadinya tiga kesalahan itu kemudian dinamai "Salah Tiga", yang lambat laun dikenal sebagai Kota Salatiga. Kisah ini mengajarkan amanat bahwa keserakahan akan harta benda hanya mendatangkan petaka, sedangkan keikhlasan dan kejujuran akan membawa kedamaian hidup.`
+                    }
+                ],
+                correctParagraphs: {
+                    orientasi: '1',
+                    komplikasi: '2',
+                    resolusi: '3',
+                    koda: '4'
+                },
+                structureKeywords: {
+                    orientasi: ['pandanaran', 'semarang', 'sunan kalijaga', 'demak', 'kaya', 'penjual rumput'],
+                    komplikasi: ['emas', 'tongkat', 'nyi ageng', 'perampok', 'begal', 'menyembunyikan', 'hadang'],
+                    resolusi: ['tobat', 'sambangdalan', 'nasihat', 'tenang', 'ampun', 'pengikut'],
+                    koda: ['salah tiga', 'salatiga', 'tiga kesalahan', 'serakah', 'tamak', 'ikhlas', 'amanat']
+                },
+                sciencePrompt: 'Jelaskan fakta ilmiah (sejarah, arkeologi/prasasti, atau geografi) yang berkaitan dengan asal-usul dan keberadaan wilayah Salatiga!',
+                scienceHint: 'Secara historis dan arkeologis, asal-usul wilayah Salatiga tercatat pada peninggalan sejarah abad ke-8 Masehi, yaitu Prasasti Plumpungan (tahun 750 M) yang menetapkan daerah perdikan (bebas pajak), serta kondisi geografis Salatiga di lereng Gunung Merbabu.',
+                scienceKeywords: ['prasasti plumpungan', '750', 'abad ke-8', 'perdikan', 'sejarah', 'arkeologi', 'merbabu', 'hampra', 'toponimi', 'mataram kuno'],
+                sampleAnswer: {
+                    orientasi: 'Memperkenalkan tokoh Ki Ageng Pandanaran (Bupati Semarang di masa Kesultanan Demak) yang mulai mencintai harta dan kedatangan Sunan Kalijaga yang menyamar sebagai penjual rumput.',
+                    komplikasi: 'Sunan Kalijaga menegur Ki Ageng Pandanaran. Saat mengembara untuk berguru, Nyi Ageng melanggar syarat dengan menyembunyikan emas di dalam tongkat bambu hingga akhirnya mereka dihadang tiga perampok di tengah hutan.',
+                    resolusi: 'Ki Ageng Pandanaran dan Sunan Kalijaga menasihati para perampok dengan bijaksana hingga perampok bernama Sambangdalan menyadari kesalahannya dan bertobat.',
+                    koda: 'Sunan Kalijaga menamai lokasi terjadinya tiga kesalahan itu "Salah Tiga" (Salatiga). Pesan moralnya adalah jangan serakah terhadap harta duniawi dan selalu menepati janji.',
+                    science: 'Berdasarkan fakta sejarah dan arkeologi, berdirinya wilayah Salatiga dibuktikan oleh Prasasti Plumpungan yang berangka tahun 750 Masehi (abad ke-8) pada masa Mataram Kuno. Prasasti pada batu andesit tersebut mencatat penetapan tanah perdikan (daerah bebas pajak) bernama Hampra. Selain itu, secara geografis Salatiga terletak di kaki Gunung Merbabu pada ketinggian 450-800 mdpl sehingga beriklim sejuk dan subur.'
+                }
+            },
+
+            rorojonggrang: {
+                id: 'rorojonggrang',
+                number: 2,
+                title: 'Roro Jonggrang',
+                shapeName: 'Bentuk 2 • Belah Ketupat (Diamond)',
+                region: 'Prambanan, Sleman & Klaten',
+                bannerClass: 'from-rose-700 via-pink-700 to-purple-900',
+                paragraphs: [
+                    {
+                        num: 1,
+                        structureTag: 'Orientasi',
+                        text: `Pada zaman dahulu di Jawa Tengah, berdirilah dua kerajaan bertetangga, yaitu Kerajaan Pengging dan Kerajaan Baka. Kerajaan Baka dipimpin oleh seorang raja bertubuh raksasa bernama Prabu Baka yang memiliki seorang putri berparas sangat jelita bernama Roro Jonggrang. Sementara itu, Kerajaan Pengging memiliki seorang pangeran gagah perkasa yang memiliki kesaktian luar biasa bernama Bandung Bondowoso.`
+                    },
+                    {
+                        num: 2,
+                        structureTag: 'Komplikasi',
+                        text: `Pertempuran hebat pecah antara kedua kerajaan hingga akhirnya Bandung Bondowoso berhasil mengalahkan dan menewaskan Prabu Baka. Setelah menduduki Keraton Baka, Bandung Bondowoso terpikat oleh kecantikan Roro Jonggrang dan memaksanya untuk menikah. Roro Jonggrang sangat sedih dan menolak di dalam hati karena Bandung Bondowoso telah membunuh ayahnya. Untuk menggagalkan lamaran itu secara halus, Roro Jonggrang mengajukan syarat yang tampak mustahil: Bandung Bondowoso harus membangun seribu candi dan dua sumur yang dalam hanya dalam waktu satu malam sebelum ayam berkokok. Namun, dengan kesaktiannya, Bandung Bondowoso mengerahkan pasukan makhluk halus hingga menjelang dini hari 999 candi telah berhasil berdiri!`
+                    },
+                    {
+                        num: 3,
+                        structureTag: 'Resolusi',
+                        text: `Melihat seribu candi hampir selesai, Roro Jonggrang menjadi panik. Ia segera membangunkan seluruh gadis desa untuk menumbuk padi di lesung serta membakar tumpukan jerami di sisi timur agar langit tampak memerah seperti fajar telah menyingsing. Suara lesung dan cahaya merah membuat ayam-ayam jantan berkokok sehingga pasukan makhluk halus mengira pagi telah tiba dan langsung pergi meninggalkan pekerjaan. Bandung Bondowoso yang mengetahui tipu muslihat Roro Jonggrang menjadi sangat murka, lalu mengutuk Roro Jonggrang menjadi batu untuk menggenapkan candi yang ke-1.000.`
+                    },
+                    {
+                        num: 4,
+                        structureTag: 'Koda',
+                        text: `Sejak peristiwa itu, kompleks candi yang megah tersebut dikenal masyarakat sebagai Candi Roro Jonggrang atau Candi Prambanan, dengan arca batu di ruang utama yang dipercaya sebagai wujud sang putri. Kisah legenda ini memberikan pesan moral bahwa kita tidak boleh memaksakan kehendak dengan kekerasan, tidak boleh berbuat curang atau mengingkari janji yang telah diucapkan, serta tidak gegabah dikuasai amarah.`
+                    }
+                ],
+                correctParagraphs: {
+                    orientasi: '1',
+                    komplikasi: '2',
+                    resolusi: '3',
+                    koda: '4'
+                },
+                structureKeywords: {
+                    orientasi: ['pengging', 'baka', 'roro jonggrang', 'bandung bondowoso', 'putri', 'kerajaan'],
+                    komplikasi: ['perang', 'tewas', 'syarat', 'seribu candi', '1000', 'semalam', 'makhluk halus', '999'],
+                    resolusi: ['lesung', 'jerami', 'ayam', 'kokok', 'tipu', 'murka', 'kutuk', 'arca', 'batu'],
+                    koda: ['prambanan', 'candi', 'janji', 'curang', 'amanat', 'memaksakan']
+                },
+                sciencePrompt: 'Tuliskan fakta ilmiah (sejarah, arkeologi, dan teknik arsitektur) mengenai pembangunan Candi Prambanan yang sebenarnya!',
+                scienceHint: 'Berdasarkan bukti sejarah (Prasasti Siwagrha tahun 856 M), Candi Prambanan dibangun pada abad ke-9 oleh Raja Rakai Pikatan dari Wangsa Sanjaya sebagai candi Hindu (Trimurti). Arca yang disebut Roro Jonggrang sebenarnya adalah arca Dewi Durga Mahisasuramardini, dan candi dibangun dari batu andesit vulkanik dengan teknik kuncian (interlocking).',
+                scienceKeywords: ['abad ke-9', '850', '856', 'rakai pikatan', 'siwagrha', 'hindu', 'durga', 'andesit', 'interlocking', 'sanjaya', 'trimurti', 'arkeologi'],
+                sampleAnswer: {
+                    orientasi: 'Memperkenalkan latar Kerajaan Pengging dan Kerajaan Baka beserta tokoh Prabu Baka, putrinya yang cantik Roro Jonggrang, dan ksatria sakti Bandung Bondowoso.',
+                    komplikasi: 'Bandung Bondowoso mengalahkan Prabu Baka lalu melamar Roro Jonggrang. Roro Jonggrang mengajukan syarat mustahil berupa 1.000 candi dalam semalam, tetapi Bandung Bondowoso hampir menyelesaikannya (999 candi) dengan bantuan makhluk halus.',
+                    resolusi: 'Roro Jonggrang membakar jerami dan membunyikan lesung agar ayam berkokok dan jin pergi. Bandung Bondowoso yang marah karena dicurangi akhirnya mengutuk Roro Jonggrang menjadi arca ke-1.000.',
+                    koda: 'Menjelaskan asal-usul sebutan Candi Roro Jonggrang (Candi Prambanan) dan pesan moral agar kita selalu menepati janji serta tidak memaksakan kehendak.',
+                    science: 'Secara ilmiah (arkeologi dan sejarah), Candi Prambanan bukan dibangun dalam semalam, melainkan dibangun pada abad ke-9 Masehi (sekitar tahun 850 M) oleh Raja Rakai Pikatan dari Wangsa Sanjaya sesuai catatan Prasasti Siwagrha (856 M). Arca yang dikira Roro Jonggrang sebenarnya adalah arca Dewi Durga Mahisasuramardini. Secara geologi dan teknik sipil kuno, candi ini disusun dari batuan andesit vulkanik menggunakan teknik sambungan takik (interlocking) tanpa semen.'
+                }
+            },
+
+            ratuselatan: {
+                id: 'ratuselatan',
+                number: 3,
+                title: 'Ratu Selatan / Roro Kidul',
+                shapeName: 'Bentuk 3 • Lingkaran Samudra (Circle)',
+                region: 'Pantai Selatan Pulau Jawa (Samudra Hindia)',
+                bannerClass: 'from-teal-700 via-emerald-700 to-cyan-900',
+                paragraphs: [
+                    {
+                        num: 1,
+                        structureTag: 'Orientasi',
+                        text: `Pada zaman keemasan Kerajaan Pakuan Pajajaran di tanah Pasundan, hiduplah seorang raja bijaksana bernama Prabu Siliwangi. Beliau memiliki seorang putri kesayangan yang sangat elok rupanya serta berbudi pekerti luhur bernama Putri Kandita. Karena sifatnya yang lembut, adil, dan penuh kasih sayang seperti ayahnya, Putri Kandita direncanakan menjadi pewaris takhta kerajaan di masa depan.`
+                    },
+                    {
+                        num: 2,
+                        structureTag: 'Komplikasi',
+                        text: `Rencana penobatan Putri Kandita menimbulkan rasa iri dan dengki yang mendalam di hati para selir dan saudara-saudara tirinya. Mereka bersekongkol menemui seorang penyihir jahat untuk mencelakai Putri Kandita dan permaisuri. Akibat guna-guna tersebut, tubuh Putri Kandita dan ibunya mendadak dipenuhi luka penyakit kulit (kusta) yang mengeluarkan bau tidak sedap dan tak kunjung sembuh oleh tabib istana. Atas hasutan para selir yang takut tertular, Prabu Siliwangi dengan berat hati terpaksa mengizinkan Putri Kandita dan ibunya keluar dari istana. Dalam pengembaraan yang berat di hutan belantara, sang ibu jatuh sakit hingga meninggal dunia, meninggalkan Putri Kandita seorang diri.`
+                    },
+                    {
+                        num: 3,
+                        structureTag: 'Resolusi',
+                        text: `Putri Kandita terus berjalan seorang diri ke arah selatan dengan penuh ketabahan hingga tiba di tepi tebing Pantai Selatan yang deburan ombaknya sangat besar dan bergemuruh. Di tengah kelelahannya merenung dan bertapa, ia mendengar bisikan gaib yang memintanya menceburkan diri ke dalam gulungan ombak Samudra Selatan. Begitu tubuh Putri Kandita menyentuh air laut, keajaiban pun terjadi: penyakit kulit di sekujur tubuhnya sembuh total dan kecantikannya pulih melebihi sedia kala. Ia memilih menetap di pesisir selatan dan diangkat menjadi ratu penguasa samudra yang bergelar Nyi Roro Kidul atau Ratu Pantai Selatan.`
+                    },
+                    {
+                        num: 4,
+                        structureTag: 'Koda',
+                        text: `Hingga kini, masyarakat pesisir selatan Pulau Jawa mengenal legenda Ratu Pantai Selatan beserta larangan mengenakan pakaian berwarna hijau pupus saat berada di pantai. Kisah ini mengandung amanat agar manusia tidak memiliki sifat iri dengki yang merugikan sesama, senantiasa tabah dan sabar saat menghadapi ujian hidup, serta selalu menghormati dan menjaga kelestarian alam laut.`
+                    }
+                ],
+                correctParagraphs: {
+                    orientasi: '1',
+                    komplikasi: '2',
+                    resolusi: '3',
+                    koda: '4'
+                },
+                structureKeywords: {
+                    orientasi: ['pajajaran', 'prabu siliwangi', 'putri kandita', 'cantik', 'pewaris', 'takhta'],
+                    komplikasi: ['iri', 'dengki', 'selir', 'sihir', 'penyakit', 'kusta', 'kulit', 'usir', 'meninggal'],
+                    resolusi: ['pantai selatan', 'ombak', 'terjun', 'cebur', 'sembuh', 'ratu', 'roro kidul'],
+                    koda: ['hijau', 'amanat', 'sabar', 'tabah', 'alam', 'laut']
+                },
+                sciencePrompt: 'Jelaskan fakta ilmiah (oseanografi/kelautan) mengapa ombak Pantai Selatan Jawa sangat berbahaya dan alasan logis di balik larangan memakai baju berwarna hijau!',
+                scienceHint: 'Dalam ilmu oseanografi, Pantai Selatan Jawa berhadapan langsung dengan Samudra Hindia terbuka tanpa penghalang pulau, serta memiliki fenomena arus balik bawah laut yang kuat bernama Rip Current (Arus Pecah). Warna hijau kebiruan membuat perenang yang terseret ombak sulit terlihat oleh tim penyelamat (kamuflase visual dengan warna air laut).',
+                scienceKeywords: ['rip current', 'arus pecah', 'samudra hindia', 'oseanografi', 'palung', 'hijau', 'visual', 'penyelamat', 'kamuflase', 'gelombang', 'angin'],
+                sampleAnswer: {
+                    orientasi: 'Memperkenalkan Kerajaan Pakuan Pajajaran yang dipimpin Prabu Siliwangi serta putrinya yang cantik dan baik hati bernama Putri Kandita.',
+                    komplikasi: 'Para selir dan saudara tiri merasa iri hati lalu mengirim guna-guna hingga Putri Kandita dan ibunya menderita penyakit kulit parah, terusir dari istana, dan ibunya wafat dalam pengembaraan.',
+                    resolusi: 'Putri Kandita sampai di Pantai Selatan dan menceburkan diri ke laut sesuai bisikan gaib. Penyakitnya sembuh total dan ia menjadi penguasa samudra bergelar Nyi Roro Kidul.',
+                    koda: 'Melahirkan tradisi menghormati Pantai Selatan termasuk pantangan berbaju hijau, serta pesan moral untuk menjauhi sifat dengki dan tetap tabah menghadapi cobaan.',
+                    science: 'Berdasarkan fakta oseanografi (ilmu kelautan), ganasnya Pantai Selatan Jawa disebabkan posisinya yang berhadapan langsung dengan Samudra Hindia yang luas dan dalam, sehingga menghasilkan gelombang tinggi dan fenomena Rip Current (arus pecah/arus balik kuat yang menyeret perenang ke tengah laut). Larangan memakai baju hijau secara ilmiah masuk akal karena air laut pantai selatan berwarna hijau kebiruan, sehingga jika wisatawan memakai baju hijau dan terseret arus, tim SAR akan kesulitan melihat korban secara visual dari permukaan.'
+                }
+            },
+
+            merapi: {
+                id: 'merapi',
+                number: 4,
+                title: 'Asal-Usul Merapi',
+                shapeName: 'Bentuk 4 • Segitiga Puncak Gunung (Triangle)',
+                region: 'Perbatasan DIY (Sleman) & Jawa Tengah (Magelang, Boyolali, Klaten)',
+                bannerClass: 'from-red-800 via-orange-700 to-amber-700',
+                paragraphs: [
+                    {
+                        num: 1,
+                        structureTag: 'Orientasi',
+                        text: `Pada zaman dahulu kala, dikisahkan bahwa daratan Pulau Jawa belum seimbang dan miring ke arah barat karena banyaknya gunung besar yang berkumpul di bagian barat. Sementara itu, di dataran tengah Pulau Jawa yang masih rata, hiduplah dua orang pembuat keris pusaka (empu) yang sangat sakti mandraguna bernama Empu Rama dan Empu Permadi. Kedua empu tersebut sedang menempa sebilah keris pusaka di sebuah tungku perapian suci yang tak pernah padam.`
+                    },
+                    {
+                        num: 2,
+                        structureTag: 'Komplikasi',
+                        text: `Agar Pulau Jawa tidak terus miring dan tenggelam, Dewa Batara Guru memerintahkan Batara Narada dan Batara Indra untuk memindahkan Gunung Jamurdipa dari Laut Selatan ke bagian tengah Pulau Jawa, tepatnya di tempat Empu Rama dan Empu Permadi sedang bekerja. Para utusan dewa pun turun menemui kedua empu tersebut dan meminta mereka segera pindah. Namun, Empu Rama dan Empu Permadi menolak dengan tegas karena proses penempaan keris pusaka tidak boleh dihentikan sebelum selesai; jika dihentikan, kesaktian keris itu akan hilang. Pertikaian pun terjadi antara utusan dewa dengan kedua empu yang mempertahankan tungku perapiannya.`
+                    },
+                    {
+                        num: 3,
+                        structureTag: 'Resolusi',
+                        text: `Karena waktu penyeimbangan Pulau Jawa sudah sangat mendesak dan kedua empu tetap enggan beranjak, para dewa akhirnya mengangkat Gunung Jamurdipa dan menimpakannya tepat di atas tempat perapian Empu Rama dan Empu Permadi. Kedua empu sakti itu beserta tungku perapian mereka yang membara tertimbun di dasar gunung. Ajaibnya, bara api dari tungku penempaan keris milik kedua empu tersebut tidak ikut padam, melainkan terus menyala di dalam perut gunung dan menyemburkan asap serta lahar panas ke puncak.`
+                    },
+                    {
+                        num: 4,
+                        structureTag: 'Koda',
+                        text: `Karena di dalam gunung tersebut terdapat perapian yang terus menyala, masyarakat menamainya Gunung Merapi (gabungan kata "Meru" yang berarti gunung dan "Api"). Legenda ini memberikan pesan moral tentang pentingnya menjaga keseimbangan alam semesta, keteguhan dalam menjalankan tanggung jawab, serta kearifan masyarakat untuk selalu waspada dan hidup harmonis berdampingan dengan potensi bencana gunung berapi.`
+                    }
+                ],
+                correctParagraphs: {
+                    orientasi: '1',
+                    komplikasi: '2',
+                    resolusi: '3',
+                    koda: '4'
+                },
+                structureKeywords: {
+                    orientasi: ['pulau jawa', 'miring', 'empu rama', 'empu permadi', 'keris', 'perapian'],
+                    komplikasi: ['dewa', 'batara', 'gunung jamurdipa', 'pindah', 'menolak', 'tungku', 'pertikaian'],
+                    resolusi: ['timpa', 'jatuh', 'timbun', 'menyala', 'perut gunung', 'asap', 'lahar'],
+                    koda: ['merapi', 'meru', 'api', 'keseimbangan', 'waspada', 'amanat']
+                },
+                sciencePrompt: 'Tuliskan fakta ilmiah (geologi dan vulkanologi) bagaimana Gunung Merapi terbentuk serta mengapa gunung ini terus aktif mengeluarkan magma dan awan panas!',
+                scienceHint: 'Menurut ilmu geologi dan vulkanologi, Gunung Merapi terbentuk akibat proses tektonik subduksi (tumbukan) Lempeng Indo-Australia yang menunjam ke bawah Lempeng Eurasia. Gesekan di zona subduksi melelehkan batuan mantel bumi menjadi magma yang naik membentuk gunung api tipe stratovolcano dengan kubah lava dan awan panas guguran (wedhus gembel).',
+                scienceKeywords: ['subduksi', 'lempeng', 'indo-australia', 'eurasia', 'magma', 'stratovolcano', 'vulkanologi', 'geologi', 'awan panas', 'kubah lava', 'tektonik', 'wedhus gembel'],
+                sampleAnswer: {
+                    orientasi: 'Menceritakan kondisi Pulau Jawa pada zaman dahulu yang miring ke barat serta memperkenalkan tokoh Empu Rama dan Empu Permadi yang sedang menempa keris pusaka di dataran tengah Jawa.',
+                    komplikasi: 'Para dewa meminta Empu Rama dan Empu Permadi pindah karena lokasi mereka akan diletakkan Gunung Jamurdipa sebagai penyeimbang Pulau Jawa, namun kedua empu menolak demi menyelesaikan penempaan keris.',
+                    resolusi: 'Para dewa akhirnya menimpakan Gunung Jamurdipa di atas kedua empu tersebut. Tungku perapian mereka terus menyala di dalam perut gunung dan mengeluarkan asap serta api.',
+                    koda: 'Gunung tersebut dinamai Gunung Merapi (Meru dan Api). Amanatnya adalah menjaga keseimbangan alam dan selalu waspada terhadap gejala alam di sekitar kita.',
+                    science: 'Berdasarkan fakta geologi dan vulkanologi, Gunung Merapi terbentuk dan aktif bukan karena tungku keris, melainkan akibat aktivitas tektonik di zona subduksi, yaitu menunjamnya Lempeng Indo-Australia ke bawah Lempeng Eurasia di selatan Pulau Jawa. Suhu dan tekanan tinggi di kedalaman bumi melelehkan batuan menjadi dapur magma yang terus mendorong ke permukaan, membentuk gunung api berlapis (stratovolcano) yang aktif membentuk kubah lava dan awan panas guguran (piroklastik).'
+                }
+            }
+        };
+
+        // --- 2. STATE APLIKASI ---
+        let currentStoryKey = 'salatiga';
+        let currentFontSize = 16;
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        // Data Spreadsheet (diinisialisasi dengan 1 contoh data awal agar guru/murid langsung melihat format tabel)
+        let spreadsheetData = [
+            {
+                id: 'row-demo-1',
+                timestamp: '08:30 WIB',
+                groupName: 'Kelompok 1 - Nusantara (Contoh)',
+                members: 'Alya, Bagas, Citra, Daffa',
+                storyTitle: 'Asal-Usul Salatiga',
+                storyKey: 'salatiga',
+                orientasi: '[Paragraf 1] Pengenalan Ki Ageng Pandanaran sebagai Bupati Semarang di masa Kesultanan Demak dan kedatangan Sunan Kalijaga.',
+                komplikasi: '[Paragraf 2] Nyi Ageng Pandanaran menyembunyikan emas di dalam tongkat bambu dan dihadang tiga perampok di hutan.',
+                resolusi: '[Paragraf 3] Ki Ageng dan Sunan Kalijaga menasihati perampok hingga Sambangdalan bertobat.',
+                koda: '[Paragraf 4] Tempat terjadinya tiga kesalahan dinamai Salah Tiga (Salatiga). Amanat: jangan serakah.',
+                scienceFact: 'Dibuktikan secara sejarah dan arkeologi oleh Prasasti Plumpungan (750 M) tentang penetapan daerah perdikan Hampra di kaki Gunung Merbabu.',
+                scoreStructure: 60,
+                scoreScience: 40,
+                totalScore: 100
+            }
+        ];
+
+        // Melacak misi mana yang sudah diselesaikan oleh kelompok aktif saat ini
+        let completedStoriesByCurrentGroup = {
+            salatiga: false,
+            rorojonggrang: false,
+            ratuselatan: false,
+            merapi: false
+        };
+
+        // --- 3. EFEK SUARA SINTESIS (WEB AUDIO API TANPA URL EKSTERNAL) ---
+        function playTone(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                    osc.start(now);
+                    osc.stop(now + 0.09);
+                } else if (type === 'success') {
+                    const notes = [523.25, 659.25, 783.99, 1046.5];
+                    notes.forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = 'triangle';
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, now + idx * 0.09);
+                        g.gain.setValueAtTime(0.12, now + idx * 0.09);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.22);
+                        o.start(now + idx * 0.09);
+                        o.stop(now + idx * 0.09 + 0.22);
+                    });
+                }
+            } catch (e) {
+                // Abaikan jika browser memblokir autoplay audio
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            icon.className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark text-slate-400';
+            showToast(soundEnabled ? 'Efek suara diaktifkan' : 'Efek suararelsen dinonaktifkan', 'info');
+        }
+
+        // --- 4. PENGELOLAAN IDENTITAS KELOMPOK DI BERANDA ---
+        function syncGroupIdentity() {
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            const members = document.getElementById('groupMembersInput').value.trim();
+            const navGroupName = document.getElementById('navGroupName');
+            const alertBox = document.getElementById('groupStatusAlert');
+
+            if (groupName && members) {
+                if (navGroupName) navGroupName.textContent = `${groupName}`;
+                if (alertBox) {
+                    alertBox.className = 'hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold shrink-0';
+                    alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> <span id="navGroupName">${escapeHtml(groupName)}</span>`;
+                }
+            } else {
+                if (alertBox) {
+                    alertBox.className = 'hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold shrink-0';
+                    alertBox.innerHTML = `<i class="fa-solid fa-circle-info text-amber-600"></i> <span id="navGroupName">Isi Kelompok</span>`;
+                }
+            }
+        }
+
+        function saveGroupIdentityBtn() {
+            playTone('click');
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            const members = document.getElementById('groupMembersInput').value.trim();
+
+            if (!groupName || !members) {
+                showToast('Harap isi Nama Kelompok dan Nama Anggota di baris atas!', 'warning');
+                if (!groupName) document.getElementById('groupNameInput').focus();
+                else document.getElementById('groupMembersInput').focus();
+                return;
+            }
+            syncGroupIdentity();
+            showToast(`Kelompok "${groupName}" siap! Silakan klik salah satu dari 4 bentuk legenda di panel kiri.`, 'success');
+        }
+
+        function resetGroupForNewTeam() {
+            playTone('click');
+            document.getElementById('groupNameInput').value = '';
+            document.getElementById('groupMembersInput').value = '';
+            completedStoriesByCurrentGroup = {
+                salatiga: false,
+                rorojonggrang: false,
+                ratuselatan: false,
+                merapi: false
+            };
+            updateCompletionBadges();
+            syncGroupIdentity();
+            showToast('Siap untuk kelompok baru! Data kelompok sebelumnya tetap tersimpan di Spreadsheet bawah.', 'info');
+        }
+
+        function updateCompletionBadges() {
+            let count = 0;
+            Object.keys(completedStoriesByCurrentGroup).forEach(key => {
+                const badge = document.getElementById(`badge-${key}`);
+                if (completedStoriesByCurrentGroup[key]) {
+                    count++;
+                    if (badge) badge.classList.remove('hidden');
+                } else {
+                    if (badge) badge.classList.add('hidden');
+                }
+            });
+            const completedEl = document.getElementById('completedCountText');
+            if (completedEl) completedEl.textContent = `${count}/4 Cerita Selesai`;
+        }
+
+        // --- 5. MEMBUKA JENDELA SATU LAYAR CERITA & JENDELA TUGAS ---
+        function openStoryMission(storyKey, silent = false) {
+            if (!silent) playTone('click');
+            const story = STORIES_DB[storyKey];
+            if (!story) return;
+
+            currentStoryKey = storyKey;
+
+            // Highlight kartu bentuk yang sedang aktif di beranda
+            ['salatiga', 'rorojonggrang', 'ratuselatan', 'merapi'].forEach(k => {
+                const card = document.getElementById(`card-${k}`);
+                if (card) {
+                    if (k === storyKey) card.classList.add('active-shape');
+                    else card.classList.remove('active-shape');
+                }
+            });
+
+            document.getElementById('missionShapeLabel').textContent = story.shapeName;
+            document.getElementById('readerTitle').textContent = `${story.number}. ${story.title}`;
+            document.getElementById('storyRegionTag').textContent = story.region;
+            document.getElementById('storyHeaderBanner').className = `bg-gradient-to-r ${story.bannerClass} text-white px-5 py-3.5 shrink-0 flex flex-wrap items-center justify-between gap-3`;
+
+            const taskTitleEl = document.getElementById('taskModalStoryTitle');
+            if (taskTitleEl) taskTitleEl.textContent = story.title;
+
+            // Render Paragraf Teks Legenda Lengkap di Jendela Cerita
+            const container = document.getElementById('storyFullTextContainer');
+            container.innerHTML = story.paragraphs.map(p => `
+                <div class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border border-amber-200/90 hover:bg-amber-50 transition shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-200/90 text-amber-950 font-sans font-extrabold text-xs">
+                            <i class="fa-solid fa-paragraph"></i> Paragraf ${p.num}
+                        </span>
+                    </div>
+                    <p class="text-slate-800 leading-relaxed text-justify">${p.text}</p>
+                </div>
+            `).join('');
+
+            // Render Pertanyaan 2 & Petunjuk Sains di Jendela Tugas
+            document.getElementById('sciencePromptText').textContent = story.sciencePrompt;
+            document.getElementById('scienceHintContent').textContent = story.scienceHint;
+            document.getElementById('scienceKeywordPills').innerHTML = story.scienceKeywords.slice(0, 6).map(kw => `
+                <span class="px-2 py-0.5 rounded bg-white border border-teal-300 text-teal-900 font-bold text-[10px]">
+                    #${kw}
+                </span>
+            `).join('');
+
+            // Kosongkan isian untuk cerita yang baru dipilih
+            document.getElementById('selectOrientasi').value = '';
+            document.getElementById('selectKomplikasi').value = '';
+            document.getElementById('selectResolusi').value = '';
+            document.getElementById('selectKoda').value = '';
+
+            document.getElementById('inputOrientasi').value = '';
+            document.getElementById('inputKomplikasi').value = '';
+            document.getElementById('inputResolusi').value = '';
+            document.getElementById('inputKoda').value = '';
+            document.getElementById('inputFaktaIlmiah').value = '';
+
+            const sampleBox = document.getElementById('sampleAnswerBox');
+            if (sampleBox) sampleBox.classList.add('hidden');
+            checkStudentEffort();
+
+            // Jika bukan inisialisasi awal di background, tampilkan jendela satu layar cerita
+            if (!silent) {
+                document.getElementById('taskFullscreenModal').classList.add('hidden');
+                document.getElementById('storyFullscreenModal').classList.remove('hidden');
+            }
+        }
+
+        function closeStoryModal() {
+            playTone('click');
+            document.getElementById('storyFullscreenModal').classList.add('hidden');
+        }
+
+        function openTaskModal() {
+            playTone('click');
+            document.getElementById('storyFullscreenModal').classList.add('hidden');
+            document.getElementById('taskFullscreenModal').classList.remove('hidden');
+        }
+
+        function backToStoryWindow() {
+            playTone('click');
+            document.getElementById('taskFullscreenModal').classList.add('hidden');
+            document.getElementById('storyFullscreenModal').classList.remove('hidden');
+        }
+
+        function closeAllStoryAndTaskModals() {
+            playTone('click');
+            document.getElementById('storyFullscreenModal').classList.add('hidden');
+            document.getElementById('taskFullscreenModal').classList.add('hidden');
+        }
+
+        function openSpreadsheetModal() {
+            playTone('click');
+            renderSpreadsheet();
+            document.getElementById('spreadsheetModal').classList.remove('hidden');
+        }
+
+        function closeSpreadsheetModal() {
+            playTone('click');
+            document.getElementById('spreadsheetModal').classList.add('hidden');
+        }
+
+        function adjustFontSize(delta) {
+            currentFontSize = Math.min(20, Math.max(12, currentFontSize + delta));
+            document.getElementById('storyFullTextContainer').style.fontSize = `${currentFontSize}px`;
+        }
+
+        function toggleStructureGuide() {
+            const box = document.getElementById('structureGuideBox');
+            box.classList.toggle('hidden');
+        }
+
+        function toggleScienceHint() {
+            const box = document.getElementById('scienceHintBox');
+            box.classList.toggle('hidden');
+        }
+
+        // Cek apakah murid sudah berusaha menuliskan jawaban di kelima kolom & memilih paragraf
+        const MIN_EFFORT_CHARS = 15;
+        let wasSampleUnlocked = false;
+
+        function getStudentEffortStatus() {
+            const selO = document.getElementById('selectOrientasi')?.value || '';
+            const selK = document.getElementById('selectKomplikasi')?.value || '';
+            const selR = document.getElementById('selectResolusi')?.value || '';
+            const selKo = document.getElementById('selectKoda')?.value || '';
+
+            const txtO = (document.getElementById('inputOrientasi')?.value || '').trim();
+            const txtK = (document.getElementById('inputKomplikasi')?.value || '').trim();
+            const txtR = (document.getElementById('inputResolusi')?.value || '').trim();
+            const txtKo = (document.getElementById('inputKoda')?.value || '').trim();
+            const txtSc = (document.getElementById('inputFaktaIlmiah')?.value || '').trim();
+
+            const oReady = selO !== '' && txtO.length >= MIN_EFFORT_CHARS;
+            const kReady = selK !== '' && txtK.length >= MIN_EFFORT_CHARS;
+            const rReady = selR !== '' && txtR.length >= MIN_EFFORT_CHARS;
+            const koReady = selKo !== '' && txtKo.length >= MIN_EFFORT_CHARS;
+            const scReady = txtSc.length >= MIN_EFFORT_CHARS;
+
+            const filledCount = [oReady, kReady, rReady, koReady, scReady].filter(Boolean).length;
+            const isUnlocked = filledCount === 5 || Boolean(completedStoriesByCurrentGroup[currentStoryKey]);
+
+            return {
+                filledCount,
+                isUnlocked,
+                missingParts: [
+                    !oReady ? 'Orientasi (pilih paragraf & min. 15 huruf)' : null,
+                    !kReady ? 'Komplikasi (pilih paragraf & min. 15 huruf)' : null,
+                    !rReady ? 'Resolusi (pilih paragraf & min. 15 huruf)' : null,
+                    !koReady ? 'Koda (pilih paragraf & min. 15 huruf)' : null,
+                    !scReady ? 'Fakta Ilmiah (min. 15 huruf)' : null
+                ].filter(Boolean)
+            };
+        }
+
+        function checkStudentEffort() {
+            const status = getStudentEffortStatus();
+            const btn = document.getElementById('btnSampleAnswer');
+            const icon = document.getElementById('sampleBtnIcon');
+            const text = document.getElementById('sampleBtnText');
+            const badge = document.getElementById('effortProgressBadge');
+
+            if (badge) {
+                if (status.isUnlocked) {
+                    badge.className = 'text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300';
+                    badge.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i> Usaha Menulis: 5/5 Kolom (Contoh Terbuka)`;
+                } else {
+                    badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
+                    badge.innerHTML = `<i class="fa-solid fa-lock mr-1 text-amber-600"></i> Usaha Menulis: ${status.filledCount}/5 Kolom`;
+                }
+            }
+
+            if (!btn || !icon || !text) return;
+
+            if (status.isUnlocked) {
+                btn.className = 'px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/50 text-xs font-extrabold transition flex items-center gap-1.5';
+                btn.title = 'Klik untuk melihat referensi contoh jawaban';
+                icon.className = 'fa-solid fa-unlock-keyhole text-emerald-400';
+                text.textContent = 'Contoh (Terbuka)';
+
+                if (!wasSampleUnlocked && status.filledCount === 5) {
+                    wasSampleUnlocked = true;
+                    showToast('Hebat! Karena kelompokmu sudah berusaha menuliskan jawaban di semua kolom, tombol "Contoh" kini terbuka sebagai referensi.', 'success');
+                }
+            } else {
+                wasSampleUnlocked = false;
+                btn.className = 'px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5';
+                btn.title = 'Terkunci: Tuliskan usaha jawabanmu terlebih dahulu di semua kolom';
+                icon.className = 'fa-solid fa-lock text-rose-400';
+                text.textContent = 'Contoh (Terkunci)';
+
+                const sampleBox = document.getElementById('sampleAnswerBox');
+                if (sampleBox) sampleBox.classList.add('hidden');
+            }
+        }
+
+        // Fitur Referensi Contoh Jawaban (Terkunci sebelum murid berusaha menulis)
+        function fillSampleAnswerForCurrentStory() {
+            playTone('click');
+            const story = STORIES_DB[currentStoryKey];
+            if (!story) return;
+
+            const status = getStudentEffortStatus();
+            if (!status.isUnlocked) {
+                showToast(`Contoh Jawaban masih terkunci (${status.filledCount}/5)! Tuliskan dulu usaha jawaban kelompokmu pada: ${status.missingParts.slice(0, 2).join(', ')}.`, 'warning');
+                return;
+            }
+
+            const sampleBox = document.getElementById('sampleAnswerBox');
+            const sampleContent = document.getElementById('sampleAnswerContent');
+
+            sampleContent.innerHTML = `
+                <div class="p-2.5 rounded-xl bg-white border border-emerald-200">
+                    <span class="font-extrabold text-blue-800 block">1. Orientasi (Paragraf ${story.correctParagraphs.orientasi})</span>
+                    <p class="text-slate-700 mt-0.5">${escapeHtml(story.sampleAnswer.orientasi)}</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white border border-emerald-200">
+                    <span class="font-extrabold text-rose-800 block">2. Komplikasi (Paragraf ${story.correctParagraphs.komplikasi})</span>
+                    <p class="text-slate-700 mt-0.5">${escapeHtml(story.sampleAnswer.komplikasi)}</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white border border-emerald-200">
+                    <span class="font-extrabold text-emerald-800 block">3. Resolusi (Paragraf ${story.correctParagraphs.resolusi})</span>
+                    <p class="text-slate-700 mt-0.5">${escapeHtml(story.sampleAnswer.resolusi)}</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white border border-emerald-200">
+                    <span class="font-extrabold text-purple-800 block">4. Koda (Paragraf ${story.correctParagraphs.koda})</span>
+                    <p class="text-slate-700 mt-0.5">${escapeHtml(story.sampleAnswer.koda)}</p>
+                </div>
+                <div class="p-2.5 rounded-xl bg-white border border-emerald-200 md:col-span-2">
+                    <span class="font-extrabold text-teal-800 block">Pertanyaan 2 • Fakta Ilmiah</span>
+                    <p class="text-slate-700 mt-0.5">${escapeHtml(story.sampleAnswer.science)}</p>
+                </div>
+            `;
+
+            sampleBox.classList.toggle('hidden');
+        }
+
+        function applySampleToInputs() {
+            const story = STORIES_DB[currentStoryKey];
+            if (!story) return;
+
+            document.getElementById('selectOrientasi').value = story.correctParagraphs.orientasi;
+            document.getElementById('selectKomplikasi').value = story.correctParagraphs.komplikasi;
+            document.getElementById('selectResolusi').value = story.correctParagraphs.resolusi;
+            document.getElementById('selectKoda').value = story.correctParagraphs.koda;
+
+            document.getElementById('inputOrientasi').value = story.sampleAnswer.orientasi;
+            document.getElementById('inputKomplikasi').value = story.sampleAnswer.komplikasi;
+            document.getElementById('inputResolusi').value = story.sampleAnswer.resolusi;
+            document.getElementById('inputKoda').value = story.sampleAnswer.koda;
+            document.getElementById('inputFaktaIlmiah').value = story.sampleAnswer.science;
+
+            checkStudentEffort();
+            showToast('Contoh jawaban telah disalin ke kolom isian.', 'info');
+        }
+
+        // --- 6. PENILAIAN OTOMATIS (SCORING ENGINE) & SIMPAN KE SPREADSHEET ---
+        function evaluateStructurePart(selectedPara, correctPara, textValue, keywords) {
+            let points = 0; // Maksimal 15 poin per bagian struktur (4 x 15 = 60 poin)
+            const cleanText = textValue.trim().toLowerCase();
+
+            // 1. Ketepatan memilih nomor paragraf (7 poin)
+            if (selectedPara === correctPara) {
+                points += 7;
+            } else if (selectedPara !== '') {
+                points += 2; // Poin partisipasi memilih paragraf
+            }
+
+            // 2. Kualitas uraian analisis struktur (8 poin)
+            if (cleanText.length >= 20) {
+                points += 4;
+                // Cek kecocokan kata kunci peristiwa
+                const matchedKw = keywords.filter(kw => cleanText.includes(kw.toLowerCase()));
+                if (matchedKw.length >= 2) {
+                    points += 4;
+                } else if (matchedKw.length === 1 || cleanText.length >= 50) {
+                    points += 3;
+                } else {
+                    points += 1;
+                }
+            } else if (cleanText.length > 0) {
+                points += 2;
+            }
+
+            return Math.min(15, points);
+        }
+
+        function evaluateScienceFact(textValue, keywords) {
+            // Maksimal 40 poin untuk Fakta Ilmiah
+            const cleanText = textValue.trim().toLowerCase();
+            if (!cleanText) return 0;
+
+            let points = 0;
+            // Skor kelengkapan argumen kalimat (maks 16 poin)
+            if (cleanText.length >= 80) points += 16;
+            else if (cleanText.length >= 40) points += 12;
+            else if (cleanText.length >= 15) points += 6;
+            else points += 3;
+
+            // Skor konsep/kata kunci ilmiah yang relevan (maks 24 poin)
+            const matchedKw = keywords.filter(kw => cleanText.includes(kw.toLowerCase()));
+            if (matchedKw.length >= 3) {
+                points += 24;
+            } else if (matchedKw.length === 2) {
+                points += 18;
+            } else if (matchedKw.length === 1) {
+                points += 12;
+            } else if (cleanText.length >= 60) {
+                points += 10; // Tetap hargai argumen panjang murid
+            }
+
+            return Math.min(40, points);
+        }
+
+        function submitMissionAnalysis() {
+            const story = STORIES_DB[currentStoryKey];
+            if (!story) return;
+
+            const selO = document.getElementById('selectOrientasi').value;
+            const selK = document.getElementById('selectKomplikasi').value;
+            const selR = document.getElementById('selectResolusi').value;
+            const selKo = document.getElementById('selectKoda').value;
+
+            const txtO = document.getElementById('inputOrientasi').value.trim();
+            const txtK = document.getElementById('inputKomplikasi').value.trim();
+            const txtR = document.getElementById('inputResolusi').value.trim();
+            const txtKo = document.getElementById('inputKoda').value.trim();
+            const txtScience = document.getElementById('inputFaktaIlmiah').value.trim();
+
+            if (!txtO || !txtK || !txtR || !txtKo) {
+                showToast('Harap lengkapi keempat kolom analisis struktur teks (Orientasi, Komplikasi, Resolusi, dan Koda)!', 'warning');
+                return;
+            }
+            if (!txtScience) {
+                showToast('Harap tuliskan jawaban Pertanyaan 2 (Fakta Ilmiah yang berkaitan dengan legenda)!', 'warning');
+                document.getElementById('inputFaktaIlmiah').focus();
+                return;
+            }
+
+            // Hitung Skor Struktur (Maks 60)
+            const scoreO = evaluateStructurePart(selO, story.correctParagraphs.orientasi, txtO, story.structureKeywords.orientasi);
+            const scoreK = evaluateStructurePart(selK, story.correctParagraphs.komplikasi, txtK, story.structureKeywords.komplikasi);
+            const scoreR = evaluateStructurePart(selR, story.correctParagraphs.resolusi, txtR, story.structureKeywords.resolusi);
+            const scoreKo = evaluateStructurePart(selKo, story.correctParagraphs.koda, txtKo, story.structureKeywords.koda);
+
+            const totalStructureScore = scoreO + scoreK + scoreR + scoreKo;
+
+            // Hitung Skor Fakta Ilmiah (Maks 40)
+            const totalScienceScore = evaluateScienceFact(txtScience, story.scienceKeywords);
+            const grandTotal = totalStructureScore + totalScienceScore;
+
+            // Ambil nama kelompok & anggota
+            const groupName = document.getElementById('groupNameInput').value.trim() || 'Kelompok Tanpa Nama';
+            const members = document.getElementById('groupMembersInput').value.trim() || '-';
+
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
+            const newEntry = {
+                id: 'row-' + Date.now(),
+                timestamp: timeStr,
+                groupName: groupName,
+                members: members,
+                storyTitle: story.title,
+                storyKey: story.id,
+                orientasi: `${selO ? `[Paragraf ${selO}] ` : ''}${txtO}`,
+                komplikasi: `${selK ? `[Paragraf ${selK}] ` : ''}${txtK}`,
+                resolusi: `${selR ? `[Paragraf ${selR}] ` : ''}${txtR}`,
+                koda: `${selKo ? `[Paragraf ${selKo}] ` : ''}${txtKo}`,
+                scienceFact: txtScience,
+                scoreStructure: totalStructureScore,
+                scoreScience: totalScienceScore,
+                totalScore: grandTotal
+            };
+
+            // Masukkan ke baris paling atas Spreadsheet
+            spreadsheetData.unshift(newEntry);
+            completedStoriesByCurrentGroup[currentStoryKey] = true;
+            updateCompletionBadges();
+            renderSpreadsheet();
+
+            // Tutup jendela tugas & cerita agar kembali ke beranda bersama modal skor
+            document.getElementById('taskFullscreenModal').classList.add('hidden');
+            document.getElementById('storyFullscreenModal').classList.add('hidden');
+
+            playTone('success');
+
+            // Tampilkan Modal Hasil Skor
+            document.getElementById('modalGroupSubtitle').textContent = `${groupName} • Legenda: ${story.title}`;
+            document.getElementById('modalScoreStructure').textContent = `${totalStructureScore}/60`;
+            document.getElementById('modalScoreScience').textContent = `${totalScienceScore}/40`;
+            document.getElementById('modalScoreTotal').textContent = grandTotal;
+
+            let predikat = 'Sangat Baik (Istimewa)';
+            if (grandTotal < 70) predikat = 'Cukup Baik (Tingkatkan ketepatan paragraf & kata kunci ilmiah)';
+            else if (grandTotal < 85) predikat = 'Baik Sekali';
+
+            document.getElementById('modalFeedbackBox').innerHTML = `
+                <div class="font-extrabold text-slate-900">Predikat Analisis: <span class="text-emerald-700">${predikat}</span></div>
+                <div>• Rincian Struktur: Orientasi (${scoreO}/15), Komplikasi (${scoreK}/15), Resolusi (${scoreR}/15), Koda (${scoreKo}/15).</div>
+                <div>• Kunci Urutan Paragraf Teks: Orientasi (Paragraf 1), Komplikasi (Paragraf 2), Resolusi (Paragraf 3), Koda (Paragraf 4).</div>
+                <div>• Seluruh jawaban kelompokmu telah otomatis masuk ke dalam <strong>Spreadsheet di Beranda</strong>!</div>
+            `;
+
+            document.getElementById('resultModal').classList.remove('hidden');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+        function closeResultModalAndViewSheet() {
+            document.getElementById('resultModal').classList.add('hidden');
+            openSpreadsheetModal();
+        }
+
+        // --- 7. FUNGSI RENDER & INTERAKSI SPREADSHEET ---
+        function renderSpreadsheet() {
+            const tbody = document.getElementById('spreadsheetBody');
+            const filterEl = document.getElementById('sheetFilterStory');
+            if (!tbody || !filterEl) return;
+            const filterVal = filterEl.value;
+
+            const filtered = filterVal === 'ALL'
+                ? spreadsheetData
+                : spreadsheetData.filter(item => item.storyTitle === filterVal);
+
+            // Update Badge & Statistik
+            const badgeEl = document.getElementById('sheetCountBadge');
+            if (badgeEl) badgeEl.textContent = spreadsheetData.length;
+            const totalRowsEl = document.getElementById('statTotalRows');
+            if (totalRowsEl) totalRowsEl.textContent = `${filtered.length} Baris`;
+
+            const avgScoreEl = document.getElementById('statAvgScore');
+            const maxScoreEl = document.getElementById('statMaxScore');
+
+            if (filtered.length > 0) {
+                const totalSum = filtered.reduce((acc, r) => acc + Number(r.totalScore || 0), 0);
+                const avg = Math.round(totalSum / filtered.length);
+                const max = Math.max(...filtered.map(r => Number(r.totalScore || 0)));
+                if (avgScoreEl) avgScoreEl.textContent = avg;
+                if (maxScoreEl) maxScoreEl.textContent = max;
+            } else {
+                if (avgScoreEl) avgScoreEl.textContent = '0';
+                if (maxScoreEl) maxScoreEl.textContent = '0';
+            }
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="text-center py-10 text-slate-400 font-medium">
+                            Belum ada data jawaban untuk filter ini. Silakan pilih cerita legenda di atas dan kirim jawaban!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((row, idx) => {
+                const rowNum = idx + 1;
+                const scoreBadgeColor = row.totalScore >= 85
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    : row.totalScore >= 70
+                        ? 'bg-amber-100 text-amber-800 border-amber-300'
+                        : 'bg-rose-100 text-rose-800 border-rose-300';
+
+                return `
+                    <tr class="transition">
+                        <td class="sheet-row-header">${rowNum}</td>
+                        <td onclick="selectSheetCell('A${rowNum}', '${escapeJsStr(row.groupName)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'groupName', this.innerText)" class="font-bold text-slate-800 cursor-pointer">
+                            ${escapeHtml(row.groupName)}
+                            <div class="text-[10px] font-normal text-slate-400 mt-0.5">${escapeHtml(row.timestamp)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('B${rowNum}', '${escapeJsStr(row.members)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'members', this.innerText)" class="text-slate-700 cursor-pointer">
+                            ${escapeHtml(row.members)}
+                        </td>
+                        <td onclick="selectSheetCell('C${rowNum}', '${escapeJsStr(row.storyTitle)}')" class="font-bold text-amber-900 cursor-pointer">
+                            <span class="inline-block px-2 py-0.5 rounded bg-amber-100/80 border border-amber-200 text-xs">
+                                ${escapeHtml(row.storyTitle)}
+                            </span>
+                        </td>
+                        <td onclick="selectSheetCell('D${rowNum}', '${escapeJsStr(row.orientasi)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'orientasi', this.innerText)" class="text-slate-700 cursor-pointer max-w-[220px]">
+                            <div class="line-clamp-3">${escapeHtml(row.orientasi)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('E${rowNum}', '${escapeJsStr(row.komplikasi)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'komplikasi', this.innerText)" class="text-slate-700 cursor-pointer max-w-[220px]">
+                            <div class="line-clamp-3">${escapeHtml(row.komplikasi)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('F${rowNum}', '${escapeJsStr(row.resolusi)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'resolusi', this.innerText)" class="text-slate-700 cursor-pointer max-w-[220px]">
+                            <div class="line-clamp-3">${escapeHtml(row.resolusi)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('G${rowNum}', '${escapeJsStr(row.koda)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'koda', this.innerText)" class="text-slate-700 cursor-pointer max-w-[220px]">
+                            <div class="line-clamp-3">${escapeHtml(row.koda)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('H${rowNum}', '${escapeJsStr(row.scienceFact)}')" contenteditable="true" onblur="updateCellField('${row.id}', 'scienceFact', this.innerText)" class="text-teal-950 bg-teal-50/40 cursor-pointer max-w-[250px]">
+                            <div class="line-clamp-3">${escapeHtml(row.scienceFact)}</div>
+                        </td>
+                        <td onclick="selectSheetCell('I${rowNum}', 'Skor Total: ${row.totalScore} (Struktur: ${row.scoreStructure}/60, Sains: ${row.scoreScience}/40)')" class="text-center cursor-pointer">
+                            <span contenteditable="true" onblur="updateScoreField('${row.id}', this.innerText)" class="inline-block px-2.5 py-1 rounded-lg border font-extrabold text-sm ${scoreBadgeColor}">
+                                ${row.totalScore}
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-1">S:${row.scoreStructure} | F:${row.scoreScience}</div>
+                        </td>
+                        <td class="text-center">
+                            <div class="flex items-center justify-center gap-1">
+                                <button onclick="viewRowDetail('${row.id}')" class="p-1.5 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 transition" title="Lihat Detail Lengkap">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <button onclick="deleteSpreadsheetRow('${row.id}')" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 transition" title="Hapus Baris">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function selectSheetCell(coord, content) {
+            document.getElementById('activeCellCoord').textContent = coord;
+            document.getElementById('formulaBarText').textContent = content || '-';
+        }
+
+        function updateCellField(rowId, field, newValue) {
+            const target = spreadsheetData.find(r => r.id === rowId);
+            if (target) {
+                target[field] = newValue.trim();
+                document.getElementById('formulaBarText').textContent = target[field];
+            }
+        }
+
+        function updateScoreField(rowId, newScoreText) {
+            const target = spreadsheetData.find(r => r.id === rowId);
+            const parsed = parseInt(newScoreText.trim(), 10);
+            if (target && !isNaN(parsed)) {
+                target.totalScore = Math.max(0, Math.min(100, parsed));
+                renderSpreadsheet();
+                showToast('Skor berhasil diperbarui secara manual!', 'success');
+            }
+        }
+
+        function deleteSpreadsheetRow(rowId) {
+            spreadsheetData = spreadsheetData.filter(r => r.id !== rowId);
+            renderSpreadsheet();
+            showToast('Baris data telah dihapus dari Spreadsheet.', 'info');
+        }
+
+        function clearAllSpreadsheetData() {
+            spreadsheetData = [];
+            renderSpreadsheet();
+            showToast('Seluruh baris pada tabel Spreadsheet telah direset.', 'info');
+        }
+
+        function viewRowDetail(rowId) {
+            const row = spreadsheetData.find(r => r.id === rowId);
+            if (!row) return;
+
+            document.getElementById('detailModalTitle').textContent = `Detail Jawaban • ${row.groupName}`;
+            document.getElementById('detailModalBody').innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Kelompok</span>
+                        <span class="font-extrabold text-slate-800">${escapeHtml(row.groupName)}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Anggota</span>
+                        <span class="font-semibold text-slate-700">${escapeHtml(row.members)}</span>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Cerita Legenda & Skor</span>
+                        <span class="font-extrabold text-emerald-700">${escapeHtml(row.storyTitle)} (${row.totalScore}/100)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="p-3 rounded-xl border border-slate-200">
+                        <span class="text-xs font-extrabold text-blue-700 uppercase block mb-1">1. Orientasi</span>
+                        <p class="text-slate-700">${escapeHtml(row.orientasi)}</p>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200">
+                        <span class="text-xs font-extrabold text-rose-700 uppercase block mb-1">2. Komplikasi</span>
+                        <p class="text-slate-700">${escapeHtml(row.komplikasi)}</p>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200">
+                        <span class="text-xs font-extrabold text-emerald-700 uppercase block mb-1">3. Resolusi</span>
+                        <p class="text-slate-700">${escapeHtml(row.resolusi)}</p>
+                    </div>
+                    <div class="p-3 rounded-xl border border-slate-200">
+                        <span class="text-xs font-extrabold text-purple-700 uppercase block mb-1">4. Koda</span>
+                        <p class="text-slate-700">${escapeHtml(row.koda)}</p>
+                    </div>
+                    <div class="p-3.5 rounded-xl bg-teal-50 border border-teal-200">
+                        <span class="text-xs font-extrabold text-teal-800 uppercase block mb-1">Pertanyaan 2 • Fakta Ilmiah Berkaitan dengan Legenda</span>
+                        <p class="text-teal-950 font-medium">${escapeHtml(row.scienceFact)}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function openManualEntryModal() {
+            const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+            const groupName = document.getElementById('groupNameInput').value.trim() || `Kelompok ${spreadsheetData.length + 1}`;
+            const members = document.getElementById('groupMembersInput').value.trim() || 'Nama Anggota (Klik 2x untuk edit)';
+
+            spreadsheetData.unshift({
+                id: 'row-' + Date.now(),
+                timestamp: now,
+                groupName: groupName,
+                members: members,
+                storyTitle: 'Asal-Usul Salatiga',
+                storyKey: 'salatiga',
+                orientasi: 'Klik sel ini untuk mengetik analisis Orientasi...',
+                komplikasi: 'Klik sel ini untuk mengetik analisis Komplikasi...',
+                resolusi: 'Klik sel ini untuk mengetik analisis Resolusi...',
+                koda: 'Klik sel ini untuk mengetik analisis Koda...',
+                scienceFact: 'Klik sel ini untuk mengetik Fakta Ilmiah...',
+                scoreStructure: 50,
+                scoreScience: 35,
+                totalScore: 85
+            });
+            renderSpreadsheet();
+            showToast('Baris baru ditambahkan! Anda dapat langsung mengklik sel pada tabel untuk mengedit isinya.', 'success');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // --- 8. EKSPOR CSV (EXCEL) & SALIN CLIPBOARD ---
+        function exportSpreadsheetCSV() {
+            if (spreadsheetData.length === 0) {
+                showToast('Tidak ada data di Spreadsheet untuk diunduh!', 'warning');
+                return;
+            }
+
+            const headers = [
+                'No', 'Waktu', 'Nama Kelompok', 'Nama Anggota', 'Judul Legenda',
+                'Orientasi', 'Komplikasi', 'Resolusi', 'Koda', 'Fakta Ilmiah',
+                'Skor Struktur (60)', 'Skor Fakta Ilmiah (40)', 'Total Skor (100)'
+            ];
+
+            const csvRows = [headers.join(',')];
+
+            spreadsheetData.forEach((r, i) => {
+                const cols = [
+                    i + 1,
+                    r.timestamp,
+                    r.groupName,
+                    r.members,
+                    r.storyTitle,
+                    r.orientasi,
+                    r.komplikasi,
+                    r.resolusi,
+                    r.koda,
+                    r.scienceFact,
+                    r.scoreStructure,
+                    r.scoreScience,
+                    r.totalScore
+                ].map(val => `"${String(val ?? '').replace(/"/g, '""')}"`);
+
+                csvRows.push(cols.join(','));
+            });
+
+            const csvContent = '\uFEFF' + csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'Rekap_Skor_Legenda_dan_Fakta_Ilmiah.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('File CSV berhasil diunduh! Dapat langsung dibuka di Microsoft Excel atau Google Sheets.', 'success');
+        }
+
+        function copySpreadsheetToClipboard() {
+            if (spreadsheetData.length === 0) {
+                showToast('Tabel masih kosong!', 'warning');
+                return;
+            }
+
+            const headers = ['No', 'Kelompok', 'Anggota', 'Legenda', 'Orientasi', 'Komplikasi', 'Resolusi', 'Koda', 'Fakta Ilmiah', 'Total Skor'];
+            const lines = [headers.join('\t')];
+
+            spreadsheetData.forEach((r, idx) => {
+                lines.push([
+                    idx + 1,
+                    r.groupName,
+                    r.members,
+                    r.storyTitle,
+                    r.orientasi.replace(/\s+/g, ' '),
+                    r.komplikasi.replace(/\s+/g, ' '),
+                    r.resolusi.replace(/\s+/g, ' '),
+                    r.koda.replace(/\s+/g, ' '),
+                    r.scienceFact.replace(/\s+/g, ' '),
+                    r.totalScore
+                ].join('\t'));
+            });
+
+            const textArea = document.createElement('textarea');
+            textArea.value = lines.join('\n');
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Data berhasil disalin! Silakan Paste (Ctrl+V) langsung di Google Spreadsheets atau Excel.', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin otomatis, silakan gunakan tombol Unduh CSV.', 'warning');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- 9. UTILITAS TOAST & ESCAPING ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            let colorClasses = 'bg-slate-800 text-white border-slate-700';
+            let icon = 'fa-circle-info text-amber-400';
+
+            if (type === 'success') {
+                colorClasses = 'bg-emerald-900 text-white border-emerald-700';
+                icon = 'fa-circle-check text-emerald-400';
+            } else if (type === 'warning') {
+                colorClasses = 'bg-amber-900 text-white border-amber-700';
+                icon = 'fa-triangle-exclamation text-amber-300';
+            }
+
+            toast.className = `pointer-events-auto max-w-sm px-4 py-3 rounded-2xl shadow-xl border ${colorClasses} text-xs font-semibold flex items-center gap-2.5 transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base shrink-0"></i> <span>${escapeHtml(message)}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3800);
+        }
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function escapeJsStr(str) {
+            return String(str ?? '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, ' ');
+        }
+
+        // Inisialisasi saat halaman dimuat
+        window.onload = function () {
+            openStoryMission('salatiga', true);
+            renderSpreadsheet();
+            updateCompletionBadges();
+        };
+    </script>
+</body>
+</html>
